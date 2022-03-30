@@ -84,11 +84,8 @@ func (c *platformChowner) LChown(path string, info os.FileInfo, toHost, toContai
 	}
 	if uid != int(st.Uid) || gid != int(st.Gid) {
 		cap, err := system.Lgetxattr(path, "security.capability")
-		if err != nil && !errors.Is(err, system.EOPNOTSUPP) && err != system.ErrNotSupportedPlatform {
+		if err != nil && !errors.Is(err, system.EOPNOTSUPP) && !errors.Is(err, system.EOVERFLOW) && err != system.ErrNotSupportedPlatform {
 			return fmt.Errorf("%s: %v", os.Args[0], err)
-		} else if errors.Is(err, system.EOVERFLOW) {
-			fmt.Printf("%s: %v\n", os.Args[0], err)
-			return nil
 		}
 
 		// Make the change.
